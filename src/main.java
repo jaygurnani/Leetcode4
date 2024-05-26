@@ -12,13 +12,16 @@ public class main {
         //int[] input = { 4,2,3,1};
         //int[] output = findBuildings(input);
 
-        int[] nums1 = {1,2,3,0,0,0};
-        int m = 3;
-        int[] nums2 = {2,5,6};
-        int n = 3;
-        merge(nums1, m, nums2, n);
+//        int[] nums1 = {1,2,3,0,0,0};
+//        int m = 3;
+//        int[] nums2 = {2,5,6};
+//        int n = 3;
+//        merge(nums1, m, nums2, n);
 
-        System.out.println(nums1);
+        String input = "abbaca";
+        String output = removeDuplicates(input);
+
+        System.out.println(output);
     }
 
     public static int[] findBuildings(int[] heights) {
@@ -76,6 +79,20 @@ public class main {
                 nPointer++;
             }
         }
+    }
+
+    public static String removeDuplicates(String s) {
+       StringBuilder sb = new StringBuilder();
+       for(char c : s.toCharArray()) {
+           int size = sb.length();
+           if (size > 0 && sb.charAt(size - 1) == c) {
+               sb.deleteCharAt(size-1);
+           } else {
+               sb.append(c);
+           }
+       }
+
+       return sb.toString();
     }
 
     class Node {
