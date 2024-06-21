@@ -1,9 +1,7 @@
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.IntStream;
 
 public class main {
 
@@ -18,9 +16,24 @@ public class main {
 //        int n = 3;
 //        merge(nums1, m, nums2, n);
 
-        String input = "abbaca";
-        String output = removeDuplicates(input);
+//        String input = "abbaca";
+//        String output = removeDuplicates(input);
 
+//        int[] input = {0,0,0,0};
+//        List<List<Integer>> output = threeSum(input);
+
+//        int[] input = {9,9};
+//        int[] output = plusOne3(input);
+//        Arrays.stream(output).forEach(x -> System.out.println(x));
+
+        List<List<Integer>> input = Arrays.asList(
+                Arrays.asList(1,2,2,1),
+                Arrays.asList(3,1,2),
+                Arrays.asList(1,3,2),
+                Arrays.asList(2,4),
+                Arrays.asList(3,1,2),
+                Arrays.asList(1,3,1,1));
+        int output = leastBricks2(input);
         System.out.println(output);
     }
 
@@ -93,6 +106,147 @@ public class main {
        }
 
        return sb.toString();
+    }
+
+    public static List<List<Integer>> threeSum(int[] nums) {
+        Set<List<Integer>> resultList = new HashSet<>();
+        Arrays.sort(nums);
+
+        for(int i = 1; i < nums.length-1; i++) {
+            int lo = i-1;
+            int hi = i+1;
+
+            while (lo >= 0 && hi < nums.length) {
+                int result = nums[lo] + nums[i] + nums[hi];
+
+                if (result == 0) {
+                    List<Integer> newFound = Arrays.asList(nums[lo], nums[i], nums[hi]);
+                    resultList.add(newFound);
+
+                    lo--;
+                    hi++;
+                }
+
+                if (result > 0) {
+                    lo--;
+                }
+
+                if (result < 0) {
+                    hi++;
+                }
+
+            }
+        }
+        return new ArrayList<>(resultList);
+    }
+
+    public static int[] plusOne(int[] digits) {
+        int size = digits.length;
+        boolean carryOver = false;
+        List<Integer> result = new ArrayList<>();
+        var reversed = IntStream.range(0, size).map(i -> digits[size-i-1]).toArray();
+
+        if (reversed[0] != 9) {
+            reversed[0]++;
+            return IntStream.range(0, size).map(i -> reversed[size-i-1]).toArray();
+        } else {
+            for(int i = 0; i < reversed.length; i++) {
+                if (reversed[i] == 9) {
+                    carryOver = true;
+                    reversed[i] = 0;
+                } else {
+                    reversed[i]++;
+                    return IntStream.range(0, size).map(j -> reversed[size-j-1]).toArray();
+                }
+            }
+            if (carryOver) {
+                result.add(1);
+            }
+        }
+
+
+
+        return IntStream.range(0, size).map(i -> reversed[size-i-1]).toArray();
+
+    }
+
+    public static int[] plusOne2(int[] digits) {
+        for (int i = digits.length - 1; i >= 0; i--) {
+            if (digits[i] < 9) {
+                digits[i]++;
+                return digits;
+            }
+            digits[i] = 0;
+        }
+
+        digits = new int[digits.length + 1];
+        digits[0] = 1;
+        return digits;
+    }
+
+    public static int[] plusOne3(int[] digits) {
+        for(int i = digits.length-1; i >= 0; i--) {
+            if (digits[i] < 9) {
+                digits[i]++;
+                return digits;
+            } else {
+                digits[i] = 0;
+            }
+        }
+
+        int[] newDigits = new int[digits.length+1];
+        newDigits[0] = 1;
+        return newDigits;
+    }
+
+    public static int leastBricks(List<List<Integer>> wall) {
+        int width = 0;
+        for(int brick: wall.get(0)) {
+            width = width + brick;
+        }
+
+        int height = wall.size();
+        int[] positions = new int[height];
+
+        int fewestCrossing = height;
+        for(int col = 0; col < width-1; col++) {
+            int count = 0;
+
+            for(int i = 0; i < height; i++) {
+                List<Integer> row = wall.get(i);
+                // wtf
+                row.set(positions[i], row.get(positions[i])-1);
+
+                if (row.get(positions[i]) == 0) {
+                    positions[i]++;
+                } else {
+                    count++;
+                }
+            }
+            fewestCrossing = Math.min(count,fewestCrossing);
+        }
+
+
+        return fewestCrossing;
+    }
+
+    public static int leastBricks2(List<List<Integer>> wall) {
+        Map<Integer, Integer> gaps = new HashMap<>();
+
+        for (List<Integer> row: wall) {
+            int position = 0;
+            for(int i = 0; i < row.size()-1; i++) {
+                position = row.get(i) + position;
+                gaps.put(position, gaps.getOrDefault(position, 0) +1);
+            }
+        }
+
+        int fewestCrossing = wall.size();
+        if (!gaps.isEmpty()) {
+            fewestCrossing = fewestCrossing - Collections.max(gaps.values());
+        }
+
+        return fewestCrossing;
     }
 
     class Node {
