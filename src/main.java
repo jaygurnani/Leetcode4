@@ -1,5 +1,7 @@
+import com.sun.source.tree.Tree;
 import org.w3c.dom.Node;
 
+import javax.swing.tree.TreeNode;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -26,14 +28,24 @@ public class main {
 //        int[] output = plusOne3(input);
 //        Arrays.stream(output).forEach(x -> System.out.println(x));
 
-        List<List<Integer>> input = Arrays.asList(
-                Arrays.asList(1,2,2,1),
-                Arrays.asList(3,1,2),
-                Arrays.asList(1,3,2),
-                Arrays.asList(2,4),
-                Arrays.asList(3,1,2),
-                Arrays.asList(1,3,1,1));
-        int output = leastBricks2(input);
+//        List<List<Integer>> input = Arrays.asList(
+//                Arrays.asList(1,2,2,1),
+//                Arrays.asList(3,1,2),
+//                Arrays.asList(1,3,2),
+//                Arrays.asList(2,4),
+//                Arrays.asList(3,1,2),
+//                Arrays.asList(1,3,1,1));
+//        int output = leastBricks2(input);
+//        int[] input = {-2,0,1,3};
+//        int output = threeSumSmaller(input, 2);
+
+//        String input = "6th Jun 1933";
+//        String output = reformatDate(input);
+//      int[] input = new int[] {3,2,4,5,0};
+        //var output = convertArray(input);
+
+        int[] input = {3,4,5,6,1,2};
+        int output = search(input, 4);
         System.out.println(output);
     }
 
@@ -76,7 +88,6 @@ public class main {
         }
         return path;
     }
-
 
     public static void merge(int[] nums1, int m, int[] nums2, int n) {
         int[] inputNums1 = Arrays.copyOf(nums1, n+m);
@@ -249,11 +260,474 @@ public class main {
         return fewestCrossing;
     }
 
+    public static int threeSumSmaller(int[] nums, int target) {
+        Arrays.sort(nums);
+        int count = 0;
+
+        for(int i = 0; i < nums.length-2; i++) {
+            int lo = i+1;
+            int hi = nums.length-1;
+
+            while (lo < hi) {
+                int current = nums[i] + nums[lo] + nums[hi];
+
+                if (current < target) {
+                    count = count + (hi-lo);
+                    lo++;
+                } else {
+                    hi--;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    int sum = 0;
+    public int countPairs(TreeNode root, int distance) {
+        traverseNode(root, distance);
+        return sum;
+    }
+
+    public List<Integer> traverseNode(TreeNode root, int distance) {
+        ArrayList<Integer> list = new ArrayList<>();
+        if (root == null) {
+            return list;
+        }
+
+        List<Integer> left = traverseNode(root.left, distance);
+        List<Integer> right = traverseNode(root.right, distance);
+
+        if (left.isEmpty() && right.isEmpty()) {
+            list.add(1);
+            return list;
+        }
+
+        if (!left.isEmpty() && !right.isEmpty()) {
+            for (Integer l: left) {
+                for (Integer r: right) {
+                    if (l + r <= distance) {
+                        sum++;
+                    }
+                }
+            }
+        }
+
+        for (Integer l : left) {
+            list.add(l + 1);
+        }
+
+        for (Integer r : right) {
+            list.add(r + 1);
+        }
+
+        return list;
+    }
+
+    public static String reformatDate(String date) {
+        String[] split = date.split("\s");
+        String day = split[0];
+        String month = split[1];
+        String year = split[2];
+
+        Map<String, String> monthConvertor = new HashMap<>();
+        monthConvertor.put("Jan", "01");
+        monthConvertor.put("Feb", "02");
+        monthConvertor.put("Mar", "03");
+        monthConvertor.put("Apr", "04");
+        monthConvertor.put("May", "05");
+        monthConvertor.put("Jun", "06");
+        monthConvertor.put("Jul", "07");
+        monthConvertor.put("Aug", "08");
+        monthConvertor.put("Sep", "09");
+        monthConvertor.put("Oct", "10");
+        monthConvertor.put("Nov", "11");
+        monthConvertor.put("Dec", "12");
+
+        String dayString = day.substring(0, day.length() - 2);
+        if (dayString.length() == 1) {
+            dayString = "0" + dayString;
+        }
+
+        String monthString = monthConvertor.get(month);
+        StringBuilder sb = new StringBuilder();
+        sb.append(year);
+        sb.append("-");
+        sb.append(monthString);
+        sb.append("-");
+        sb.append(dayString);
+
+        return sb.toString();
+    }
+
+    public static int helper(int[] nums, int[] levels) {
+        var dp = new HashMap<Integer,Integer>();
+        for(var num : nums) {
+            var cur_res = Integer.MAX_VALUE;
+            for(var level : levels) {
+                var prev_res = dp.getOrDefault(level,0);
+                cur_res = Math.min(cur_res, prev_res+Math.abs(num-level));
+                dp.put(level,cur_res);
+            }
+        }
+        return dp.get(levels[levels.length-1]);
+    }
+
+    public static int convertArray(int[] nums) {
+        int[] levels = Arrays.stream(nums).distinct().sorted().toArray();
+
+        int[] nums2 = new int[nums.length];
+        for(int i = 0; i < nums.length; i++){
+            nums2[nums.length-1-i]=nums[i];
+        }
+
+            return Math.min(helper(nums, levels),helper(nums2, levels));
+    }
+
+    int maxArea = 0;
+    public int maxAreaOfIsland(int[][] grid) {
+        int row = grid.length;
+        int col = grid[0].length;
+
+        for(int i = 0; i < row; i++) {
+            for(int j = 0; j < col; j++) {
+                if (grid[i][j] == 1) {
+                    int newMax = bfs(i,j,grid);
+                    maxArea = Math.max(newMax, maxArea);
+                }
+            }
+        }
+
+        return maxArea;
+    }
+
+    public int bfs(int i, int j, int[][] grid) {
+        int maxRow = grid.length;
+        int maxCol = grid[0].length;
+        int innerMax = 0;
+        Queue<int[]> nodes = new LinkedList<>();
+        nodes.offer(new int[]{i,j});
+        innerMax++;
+        grid[i][j] = 0;
+
+        while(!nodes.isEmpty()) {
+            int n = nodes.size();
+            for(int size = 0; size < n; size++) {
+                int[] item = nodes.poll();
+                int x = item[0];
+                int y = item[1];
+
+                int[][] directions = new int[][] {{1,0}, {-1,0}, {0,-1}, {0,1} };
+                for(int[] direction: directions) {
+                    int newX = x + direction[0];
+                    int newY = y + direction[1];
+
+                    // We are out of bounds
+                    if (newX < 0 || newX >= maxRow || newY < 0 || newY >= maxCol) {
+                        continue;
+                    }
+
+                    if (grid[newX][newY] == 1) {
+                        grid[newX][newY] = 0;
+                        nodes.offer(new int[]{newX, newY});
+                        innerMax++;
+                    }
+                }
+            }
+        }
+
+        return innerMax;
+    }
+
+    public int minDistance(String word1, String word2) {
+        int word1Length = word1.length();
+        int word2Length = word2.length();
+        char[] word1Char = word1.toCharArray();
+        char[] word2Char = word2.toCharArray();
+
+        int[][] dp = new int[word1Length+1][word2Length+1];
+
+        // base case
+        for(int i = 0; i <= word1Length; i++) {
+            dp[i][0] = i;
+        }
+
+        for (int j = 0; j <= word2.length(); j++) {
+            dp[0][j] = j;
+        }
+
+        // We are operating on a i+1 and j+1 scenario
+        for(int i = 0; i < word1Length; i++) {
+            for (int j = 0; j < word2Length; j++) {
+
+                // Base case
+                if (word1Char[i] == word2Char[j]) {
+                    dp[i+1][j+1] = dp[i][j];
+                } else {
+                    // insert - move the j pointer as we no longer handle it
+                    int insertCost = dp[i][j+1] + 1;
+
+                    // delete - take our i pointer and shift it to the next position
+                    int deleteCost = dp[i+1][j] + 1;
+
+                    // replace - force both i and j pointer and shift it
+                    int replaceCost = dp[i][j] + 1;
+
+                    int min1 = Math.min(insertCost, deleteCost);
+                    int min2 = Math.min(min1, replaceCost);
+
+                    dp[i+1][j+1] = min2;
+                }
+            }
+        }
+
+        return dp[word1Length][word2Length];
+    }
+
+    public int findMin(int[] nums) {
+        int l = 0;
+        int r = nums.length-1;
+
+        while (l <= r) {
+            if (nums[l] <= nums[r]) {
+                return nums[l];
+            }
+            int mid = (l+r) / 2;
+            if (nums[mid] >= nums[l]) {
+                // look on right side
+                l = mid + 1;
+            } else {
+                r = mid;
+            }
+        }
+
+        return 0;
+    }
+
+    public static int search(int[] nums, int target) {
+        int l = 0;
+        int r = nums.length - 1;
+
+        while (l <= r) {
+            int mid = (l+r) / 2;
+            if (nums[mid] == target) {
+                return mid;
+            }
+
+            if (nums[l] <= nums[mid]) {
+                if (target > nums[mid] || target < nums[l]) {
+                    l = mid + 1;
+                } else {
+                    r = mid - 1;
+                }
+            } else {
+                if (target < nums[mid] || target > nums [r]) {
+                    r = mid - 1;
+                } else {
+                    l = mid + 1;
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    public List<List<Integer>> threeSum2(int[] nums) {
+        Set<List<Integer>> result = new HashSet<>();
+        Arrays.sort(nums);
+
+        for(int i = 0; i < nums.length-2; i++) {
+            int lo = i+1;
+            int hi = nums.length-1;
+
+            while (lo < hi) {
+                int currentItem = nums[lo] + nums[hi] + nums[i];
+                if (currentItem == 0) {
+                    result.add(List.of(nums[lo], nums[hi], nums[i]));
+                }
+
+                if (currentItem < 0) {
+                    lo++;
+                } else {
+                    hi--;
+                }
+            }
+        }
+
+        return new ArrayList<>(result);
+    }
+
+    public TreeNode invertTree(TreeNode root) {
+        if(root == null) {
+            return null;
+        }
+
+        TreeNode node = new TreeNode(root.val);
+        node.left = invertTree(root.right);
+        node.right = invertTree(root.left);
+
+        return node;
+    }
+
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        TreeNode current = root;
+
+        if (current == q || current == p || current == null) {
+            return current;
+        }
+
+        TreeNode left = lowestCommonAncestor(current.left, p, q);
+        TreeNode right = lowestCommonAncestor(current.right, p, q);
+
+        if (left != null && right != null) {
+            return current;
+        } else if (left != null) {
+            return left;
+        } else if (right != null) {
+            return right;
+        }
+
+        return null;
+    }
+
+
+    class PrefixTree {
+        TrieObj rootNode;
+
+        public class TrieObj {
+            char val;
+            HashMap<Character, TrieObj> dict = new HashMap<>();
+            boolean isEndNode = false;
+        }
+
+
+        public PrefixTree() {
+            rootNode = new TrieObj();
+        }
+
+        public void insert(String word) {
+            char[] wordCharArray = word.toCharArray();
+            TrieObj currentNode = rootNode;
+
+            for(int i = 0; i < wordCharArray.length; i++) {
+                // If it does exist
+                if (currentNode.dict.containsKey(wordCharArray[i])){
+
+                    // Navigate to this node
+                    currentNode = currentNode.dict.get(wordCharArray[i]);
+                } else {
+                    // if it doesn't exist we need to create it
+                    TrieObj newNode = new TrieObj();
+                    newNode.val = wordCharArray[i];
+
+                    currentNode.dict.put(wordCharArray[i], newNode);
+                    currentNode = newNode;
+                }
+            }
+
+            // End the Current word
+            currentNode.isEndNode = true;
+
+        }
+
+        public boolean search(String word) {
+            char[] wordCharArray = word.toCharArray();
+            TrieObj currentNode = rootNode;
+
+            for (int i = 0; i < wordCharArray.length; i++) {
+                if (!currentNode.dict.containsKey(wordCharArray[i])) {
+                    return false;
+                } else {
+                    currentNode = currentNode.dict.get(wordCharArray[i]);
+                }
+            }
+
+            if(currentNode.isEndNode) {
+                return true;
+            }
+
+            return false;
+        }
+
+        public boolean startsWith(String prefix) {
+            char[] wordCharArray = prefix.toCharArray();
+            TrieObj currentNode = rootNode;
+
+            for (int i = 0; i < wordCharArray.length; i++) {
+                if (!currentNode.dict.containsKey(wordCharArray[i])) {
+                    return false;
+                } else {
+                    currentNode = currentNode.dict.get(wordCharArray[i]);
+                }
+            }
+
+            return true;
+        }
+    }
+
+    public int numIslands(char[][] grid) {
+        int count = 0;
+        int rows = grid.length;
+        int cols = grid[0].length;
+
+        for(int i = 0; i < rows; i++) {
+            for(int j = 0; j < cols; j++) {
+                if (grid[i][j] == '1') {
+                    count++;
+                    bfs(grid, i, j, rows, cols);
+                }
+            }
+        }
+        return count;
+    }
+
+    public void bfs(char[][] grid, int i, int j, int rows, int cols) {
+        Queue<int[]> nodes = new LinkedList<>();
+        nodes.offer(new int[]{i,j});
+
+        while(!nodes.isEmpty()) {
+            int n = nodes.size();
+            for(int count = 0; count < n; count++) {
+                int[] current = nodes.poll();
+                int x = current[0];
+                int y = current[1];
+                grid[x][y] = 0;
+
+                int[][] directions = new int[][]{{1,0}, {-1,0}, {0,1}, {0,-1}};
+                for(int[] direction: directions) {
+                    int newX = x + direction[0];
+                    int newY = y + direction[1];
+
+                    if (newX < 0 || newX >= rows || newY < 0 || newY >= cols) {
+                        continue;
+                    }
+
+                    if (grid[newX][newY] == '1') {
+                        nodes.offer(new int[]{newX, newY});
+                    }
+                }
+            }
+        }
+    }
+
     class Node {
         public int val;
         public Node left;
         public Node right;
         public Node parent;
+    }
+
+    public class TreeNode {
+        int val;
+        TreeNode left;
+        TreeNode right;
+        TreeNode() {}
+        TreeNode(int val) { this.val = val; }
+        TreeNode(int val, TreeNode left, TreeNode right) {
+            this.val = val;
+            this.left = left;
+            this.right = right;
+        }
     }
 
 }
