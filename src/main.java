@@ -44,8 +44,15 @@ public class main {
 //      int[] input = new int[] {3,2,4,5,0};
         //var output = convertArray(input);
 
-        int[] input = {3,4,5,6,1,2};
-        int output = search(input, 4);
+//        int[] input = {3,4,5,6,1,2};
+//        int output = search(input, 4);
+
+       // int[] input = {10,1,5,6,7,1};
+        //int output = maxProfit(input);
+
+        String input = "zxyzxyz";
+        int output = lengthOfLongestSubstring(input);
+
         System.out.println(output);
     }
 
@@ -710,6 +717,81 @@ public class main {
         }
     }
 
+    public static int maxProfit(int[] prices) {
+        int left = 0;
+        int right = 1;
+        int maxProfit = 0;
+
+        while (right < prices.length) {
+            if (prices[left] < prices[right]) {
+                int currentPrice = prices[right] - prices[left];
+                maxProfit = Math.max(maxProfit, currentPrice);
+            } else {
+                left = right;
+            }
+
+            right++;
+        }
+
+        return maxProfit;
+    }
+
+    public static int lengthOfLongestSubstring(String s) {
+        int left = 0;
+        int longest = 0;
+
+        char[] sCharArray = s.toCharArray();
+        HashSet<Character> dict = new HashSet<>();
+
+        while (left < sCharArray.length) {
+            if (!dict.contains(sCharArray[left])) {
+                dict.add(sCharArray[left]);
+            } else {
+                dict = new HashSet<Character>();
+                longest = Math.max(dict.size(), longest);
+            }
+            left++;
+        }
+
+        return longest;
+    }
+
+    public boolean isValidBST(TreeNode root) {
+        return isValidBSTWithNumber(root, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+    }
+
+    public boolean isValidBSTWithNumber(TreeNode node, double left, double right) {
+        if (node == null) {
+            return true;
+        }
+
+        if (!(left < node.val && node.val < right)) {
+            return false;
+        }
+
+        return isValidBSTWithNumber(node.left, left, node.val) && isValidBSTWithNumber(node.right, node.val, right);
+    }
+
+    public int longestConsecutive(int[] nums) {
+        Set<Integer> numSet = new HashSet<>();
+        for (int num : nums) {
+            numSet.add(num);
+        }
+
+        int longest = 0;
+        for(int n: numSet) {
+            if (!numSet.contains(n-1)) {
+                int length = 1;
+                while(numSet.contains(n + length)) {
+                    length++;
+                }
+
+                longest = Math.max(length, longest);
+            }
+        }
+        return longest;
+    }
+
     class Node {
         public int val;
         public Node left;
@@ -729,6 +811,8 @@ public class main {
             this.right = right;
         }
     }
+
+
 
 }
 
