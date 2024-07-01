@@ -792,6 +792,32 @@ public class main {
         return longest;
     }
 
+
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+
+        HashMap<Integer, List<Integer>> dict = new HashMap<>();
+        levelOrderWithMap(root, dict, 0);
+
+        for(int i = 0 ; i < dict.size(); i++) {
+            result.add(dict.get(i));
+        }
+
+        return result;
+    }
+
+    public void levelOrderWithMap(TreeNode node, HashMap<Integer, List<Integer>> dict, int level) {
+        if (node == null) {
+            return;
+        }
+
+        List<Integer> list = dict.computeIfAbsent(level, x -> new ArrayList<Integer>());
+        list.add(node.val);
+
+        levelOrderWithMap(node.left, dict, level+1);
+        levelOrderWithMap(node.right, dict, level+1);
+    }
+
     class Node {
         public int val;
         public Node left;
